@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProjectFlow - Collaborative Project Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f7b733 0%, #fc4a1a 50%, #f7b733 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(247, 183, 51, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #f7b733, #fc4a1a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #f7b733, #fc4a1a);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(247, 183, 51, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            border: 2px solid rgba(247, 183, 51, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(247, 183, 51, 0.1);
+            border-color: rgba(247, 183, 51, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 80px);
+            padding: 2rem;
+        }
+
+        .auth-form {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            padding: 3rem;
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(247, 183, 51, 0.2);
+            width: 100%;
+            max-width: 450px;
+            border: 1px solid rgba(247, 183, 51, 0.2);
+        }
+
+        .auth-form h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, #f7b733, #fc4a1a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.7rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid rgba(247, 183, 51, 0.2);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: #f7b733;
+            box-shadow: 0 0 0 3px rgba(247, 183, 51, 0.1);
+            background: white;
+        }
+
+        .main-content {
+            padding: 2rem;
+            min-height: calc(100vh - 80px);
+        }
+
+        .projects-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .projects-header h1 {
+            color: white;
+            font-size: 2.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .project-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(247, 183, 51, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(247, 183, 51, 0.2);
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(247, 183, 51, 0.3);
+            border-color: rgba(247, 183, 51, 0.5);
+        }
+
+        .project-card h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+
+        .project-card p {
+            color: #666;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .project-members {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .member-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f7b733, #fc4a1a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(247, 183, 51, 0.3);
+            position: relative;
+        }
+
+        .project-board {
+            display: none;
+            padding: 1rem 0;
+        }
+
+        .board-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            color: white;
+        }
+
+        .board-header h1 {
+            font-size: 2rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .board-content {
+            display: flex;
+            gap: 2rem;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+        }
+
+        .column {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 1.5rem;
+            min-width: 350px;
+            max-height: 75vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .column-title {
+            color: white;
+            font-weight: bold;
+            font-size: 1.3rem;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .task-count {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .task-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 5px 20px rgba(247, 183, 51, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(247, 183, 51, 0.1);
+        }
+
+        .task-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(247, 183, 51, 0.3);
+            border-color: rgba(247, 183, 51, 0.3);
+        }
+
+        .task-title {
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .task-description {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-assignee {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+
+        .task-priority {
+            padding: 0.4rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .priority-high {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+
+        .priority-medium {
+            background: linear-gradient(135deg, #feca57, #ff9ff3);
+            color: white;
+        }
+
+        .priority-low {
+            background: linear-gradient(135deg, #48dbfb, #0abde3);
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 25px;
+            padding: 2.5rem;
+            max-width: 650px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(247, 183, 51, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(247, 183, 51, 0.2);
+        }
+
+        .modal-header h2 {
+            background: linear-gradient(135deg, #f7b733, #fc4a1a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.6rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: #fc4a1a;
+        }
+
+        .task-comments {
+            margin-top: 2rem;
+        }
+
+        .comment {
+            background: rgba(247, 183, 51, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(247, 183, 51, 0.2);
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .comment-time {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .comment-form {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .comment-input {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid rgba(247, 183, 51, 0.2);
+            border-radius: 15px;
+            resize: none;
+        }
+
+        .notification {
+            position: fixed;
+            top: 120px;
+            right: 30px;
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 40px rgba(247, 183, 51, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.4s ease;
+            z-index: 3000;
+            max-width: 320px;
+            border: 1px solid rgba(247, 183, 51, 0.3);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification-header {
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .notification-body {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .add-task-btn {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px dashed rgba(255, 255, 255, 0.6);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .add-task-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .online-users {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .online-indicator {
+            width: 10px;
+            height: 10px;
+            background: #2ed573;
+            border-radius: 50%;
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .demo-info {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(247, 183, 51, 0.3);
+            text-align: center;
+        }
+
+        .demo-info strong {
+            color: #fc4a1a;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">🌟 ProjectFlow</div>
+        <div class="user-info">
+            <div class="online-users" id="onlineUsers"></div>
+            <span id="currentUser"></span>
+            <button class="btn btn-secondary" id="logoutBtn" style="display: none;">Logout</button>
+        </div>
+    </div>
+
+    <!-- Auth Container -->
+    <div class="auth-container" id="authContainer">
+        <div class="auth-form">
+            <h2 id="authTitle">Welcome to ProjectFlow</h2>
+            <div class="demo-info">
+                <strong>Demo Credentials:</strong><br>
+                Username: <code>demo</code> | Password: <code>demo</code>
+            </div>
+            <form id="authForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group" id="passwordGroup">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;" id="authSubmitBtn">Sign In</button>
+                <button type="button" class="btn btn-secondary" style="width: 100%; margin-bottom: 1rem;" id="demoLoginBtn">Quick Demo Login</button>
+                <p style="text-align: center;">
+                    <span id="authSwitchText">New user?</span>
+                    <a href="#" id="authSwitchLink" style="color: #fc4a1a; text-decoration: none; font-weight: 600;">Create Account</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content hidden" id="mainContent">
+        <!-- Projects View -->
+        <div id="projectsView">
+            <div class="projects-header">
+                <h1>🚀 My Projects</h1>
+                <button class="btn btn-primary" id="createProjectBtn">+ Create Project</button>
+            </div>
+            <div class="projects-grid" id="projectsGrid"></div>
+        </div>
+
+        <!-- Project Board View -->
+        <div class="project-board" id="projectBoard">
+            <div class="board-header">
+                <button class="btn btn-secondary" id="backToProjects">← Back to Projects</button>
+                <h1 id="projectTitle"></h1>
+                <button class="btn btn-primary" id="inviteUserBtn">+ Invite User</button>
+            </div>
+            <div class="board-content">
+                <div class="column" id="todoColumn">
+                    <div class="column-header">
+                        <span class="column-title">📝 To Do</span>
+                        <span class="task-count" id="todoCount">0</span>
+                    </div>
+                    <div class="tasks" id="todoTasks"></div>
+                    <button class="add-task-btn" onclick="openTaskModal('todo')">+ Add Task</button>
+                </div>
+                <div class="column" id="inProgressColumn">
+                    <div class="column-header">
+                        <span class="column-title">⚡ In Progress</span>
+                        <span class="task-count" id="inProgressCount">0</span>
+                    </div>
+                    <div class="tasks" id="inProgressTasks"></div>
+                    <button class="add-task-btn" onclick="openTaskModal('in-progress')">+ Add Task</button>
+                </div>
+                <div class="column" id="doneColumn">
+                    <div class="column-header">
+                        <span class="column-title">✅ Done</span>
+                        <span class="task-count" id="doneCount">0</span>
+                    </div>
+                    <div class="tasks" id="doneTasks"></div>
+                    <button class="add-task-btn" onclick="openTaskModal('done')">+ Add Task</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Project Modal -->
+    <div class="modal" id="createProjectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🎯 Create New Project</h2>
+                <button class="close-btn" onclick="closeModal('createProjectModal')">&times;</button>
+            </div>
+            <form id="createProjectForm">
+                <div class="form-group">
+                    <label for="projectName">Project Name</label>
+                    <input type="text" id="projectName" required placeholder="Enter project name...">
+                </div>
+                <div class="form-group">
+                    <label for="projectDescription">Description</label>
+                    <textarea id="projectDescription" placeholder="Describe your project..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Create Project</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Task Modal -->
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="taskModalTitle">📋 Create New Task</h2>
+                <button class="close-btn" onclick="closeModal('taskModal')">&times;</button>
+            </div>
+            <form id="taskForm">
+                <div class="form-group">
+                    <label for="taskTitle">Task Title</label>
+                    <input type="text" id="taskTitle" required placeholder="Enter task title...">
+                </div>
+                <div class="form-group">
+                    <label for="taskDesc">Description</label>
+                    <textarea id="taskDesc" placeholder="Describe the task..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="taskPriority">Priority</label>
+                        <select id="taskPriority">
+                            <option value="low">🟢 Low</option>
+                            <option value="medium">🟡 Medium</option>
+                            <option value="high">🔴 High</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskAssignee">Assignee</label>
+                        <select id="taskAssignee"></select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="taskStatus">Status</label>
+                    <select id="taskStatus">
+                        <option value="todo">📝 To Do</option>
+                        <option value="in-progress">⚡ In Progress</option>
+                        <option value="done">✅ Done</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;">Save Task</button>
+            </form>
+
+            <!-- Task Details View -->
+            <div id="taskDetails" style="display: none;">
+                <div class="task-comments">
+                    <h3>💬 Comments</h3>
+                    <div id="commentsList"></div>
+                    <div class="comment-form">
+                        <textarea class="comment-input" id="commentInput" placeholder="Add a comment..." rows="3"></textarea>
+                        <button class="btn btn-primary" onclick="addComment()">Post</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invite User Modal -->
+    <div class="modal" id="inviteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>👥 Invite User to Project</h2>
+                <button class="close-btn" onclick="closeModal('inviteModal')">&times;</button>
+            </div>
+            <form id="inviteForm">
+                <div class="form-group">
+                    <label for="inviteEmail">Email Address</label>
+                    <input type="email" id="inviteEmail" required placeholder="user@example.com">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Send Invite</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <div class="notification-header" id="notificationHeader"></div>
+        <div class="notification-body" id="notificationBody"></div>
+    </div>
+
+    <script>
+        // Global Variables
+        let currentUser = null;
+        let currentProject = null;
+        let currentTask = null;
+        let isSignUp = false;
+
+        // Database
+        const db = {
+            users: [
+                { id: 1, username: 'demo', email: 'demo@example.com', password: 'demo' },
+                { id: 2, username: 'alice', email: 'alice@example.com', password: 'alice123' },
+                { id: 3, username: 'bob', email: 'bob@example.com', password: 'bob123' },
+                { id: 4, username: 'sarah', email: 'sarah@example.com', password: 'sarah123' }
+            ],
+            projects: [
+                {
+                    id: 1,
+                    name: '🎨 Website Redesign',
+                    description: 'Complete redesign of company website with modern UI/UX',
+                    members: [1, 2],
+                    createdBy: 1
+                },
+                {
+                    id: 2,
+                    name: '📱 Mobile App Development',
+                    description: 'Build native mobile app for iOS and Android platforms',
+                    members: [1, 3, 4],
+                    createdBy: 1
+                }
+            ],
+            tasks: [
+                {
+                    id: 1,
+                    projectId: 1,
+                    title: 'Design Homepage Mockup',
+                    description: 'Create initial mockup for the new homepage design with user-friendly interface',
+                    status: 'todo',
+                    priority: 'high',
+                    assigneeId: 2,
+                    createdBy: 1,
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    id: 2,
+                    projectId: 1,
+                    title: 'Set Up Development Environment',
+                    description: 'Configure development server, install dependencies, and set up CI/CD pipeline',
+                    status: 'in-progress',
+                    priority: 'medium',
+                    assigneeId: 1,
+                    createdBy: 1,
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    id: 3,
+                    projectId: 2,
+                    title: 'Research Framework Options',
+                    description: 'Compare React Native vs Flutter for mobile development and make recommendation',
+                    status: 'done',
+                    priority: 'low',
+                    assigneeId: 3,
+                    createdBy: 1,
+                    createdAt: new Date().toISOString()
+                }
+            ],
+            comments: [
+                {
+                    id: 1,
+                    taskId: 1,
+                    authorId: 1,
+                    content: 'I\'ve started working on the initial wireframes. Should be ready for review by tomorrow.',
+                    createdAt: new Date(Date.now() - 3600000).toISOString()
+                },
+                {
+                    id: 2,
+                    taskId: 1,
+                    authorId: 2,
+                    content: 'Great! Looking forward to seeing the designs. Let me know if you need any feedback.',
+                    createdAt: new Date(Date.now() - 1800000).toISOString()
+                }
+            ]
+        };
+
+        // Show Notification Function
+        function showNotification(title, message) {
+            const notification = document.getElementById('notification');
+            const header = document.getElementById('notificationHeader');
+            const body = document.getElementById('notificationBody');
+            
+            header.textContent = title;
+            body.textContent = message;
+            
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+
+        // Authentication Functions
+        function handleAuth(e) {
+            e.preventDefault();
+            console.log('Auth form submitted');
+            
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!username || !email || !password) {
+                showNotification('Error', 'Please fill in all fields');
+                return;
+            }
+
+            if (isSignUp) {
+                console.log('Signing up new user');
+                const existingUser = db.users.find(u => u.username === username || u.email === email);
+                if (existingUser) {
+                    showNotification('Error', 'Username or email already exists');
+                    return;
+                }
+
+                const newUser = {
+                    id: db.users.length + 1,
+                    username,
+                    email,
+                    password
+                };
+                
+                db.users.push(newUser);
+                currentUser = newUser;
+                showNotification('Success', 'Account created successfully!');
+            } else {
+                console.log('Signing in user');
+                const user = db.users.find(u => 
+                    (u.username === username || u.email === email) && u.password === password
+                );
+                
+                if (user) {
+                    currentUser = user;
+                    showNotification('Welcome!', `Good to see you, ${user.username}!`);
+                } else {
+                    showNotification('Error', 'Invalid credentials. Try: demo/demo');
+                    return;
+                }
+            }
+
+            loginUser();
+        }
+
+        function handleDemoLogin() {
+            console.log('Demo login clicked');
+            const demoUser = db.users.find(u => u.username === 'demo');
+            if (demoUser) {
+                currentUser = demoUser;
+                showNotification('Demo Mode', 'Welcome to ProjectFlow demo!');
+                loginUser();
+            }
+        }
+
+        function loginUser() {
+            console.log('Logging in user:', currentUser.username);
+            document.getElementById('authContainer').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+            document.getElementById('currentUser').textContent = currentUser.username;
+            document.getElementById('logoutBtn').style.display = 'block';
+            
+            loadProjects();
+            updateOnlineUsers();
+            document.getElementById('authForm').reset();
+        }
+
+        function handleLogout() {
+            console.log('Logout clicked');
+            currentUser = null;
+            currentProject = null;
+            document.getElementById('authContainer').classList.remove('hidden');
+            document.getElementById('mainContent').classList.add('hidden');
+            document.getElementById('logoutBtn').style.display = 'none';
+            showNotification('Goodbye', 'You have been logged out');
+        }
+
+        function toggleAuthMode(e) {
+            e.preventDefault();
+            console.log('Toggling auth mode');
+            isSignUp = !isSignUp;
+            
+            const titleElement = document.getElementById('authTitle');
+            const submitBtn = document.getElementById('authSubmitBtn');
+            const switchText = document.getElementById('authSwitchText');
+            const switchLink = document.getElementById('authSwitchLink');
+            
+            if (isSignUp) {
+                titleElement.textContent = '🚀 Create Account';
+                submitBtn.textContent = 'Sign Up';
+                switchText.textContent = 'Already have an account?';
+                switchLink.textContent = 'Sign In';
+            } else {
+                titleElement.textContent = '👋 Welcome Back';
+                submitBtn.textContent = 'Sign In';
+                switchText.textContent = 'New user?';
+                switchLink.textContent = 'Create Account';
+            }
+        }
+
+        // Project Functions
+        function loadProjects() {
+            console.log('Loading projects');
+            const userProjects = db.projects.filter(p => 
+                p.members.includes(currentUser.id) || p.createdBy === currentUser.id
+            );
+            
+            const projectsGrid = document.getElementById('projectsGrid');
+            projectsGrid.innerHTML = '';
+            
+            if (userProjects.length === 0) {
+                projectsGrid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: white;">
+                        <h3>🎯 No projects yet!</h3>
+                        <p>Create your first project to get started</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            userProjects.forEach(project => {
+                const projectCard = document.createElement('div');
+                projectCard.className = 'project-card';
+                projectCard.onclick = () => openProject(project);
+                
+                const memberAvatars = project.members.slice(0, 4).map(memberId => {
+                    const member = db.users.find(u => u.id === memberId);
+                    return `<div class="member-avatar">${member ? member.username.charAt(0).toUpperCase() : '?'}</div>`;
+                }).join('');
+                
+                const taskCount = db.tasks.filter(t => t.projectId === project.id).length;
+                const completedTasks = db.tasks.filter(t => t.projectId === project.id && t.status === 'done').length;
+                
+                projectCard.innerHTML = `
+                    <h3>${project.name}</h3>
+                    <p>${project.description}</p>
+                    <div class="project-members">${memberAvatars}</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: #666; font-size: 0.9rem;">📋 ${taskCount} tasks</span>
+                        <span style="color: #666; font-size: 0.9rem;">✅ ${completedTasks} done</span>
+                        <span style="color: #666; font-size: 0.9rem;">👥 ${project.members.length} members</span>
+                    </div>
+                `;
+                
+                projectsGrid.appendChild(projectCard);
+            });
+        }
+
+        function handleCreateProject(e) {
+            e.preventDefault();
+            console.log('Creating project');
+            
+            const name = document.getElementById('projectName').value.trim();
+            const description = document.getElementById('projectDescription').value.trim();
+            
+            if (!name) {
+                showNotification('Error', 'Project name is required');
+                return;
+            }
+            
+            const newProject = {
+                id: db.projects.length + 1,
+                name,
+                description: description || 'No description provided',
+                members: [currentUser.id],
+                createdBy: currentUser.id
+            };
+            
+            db.projects.push(newProject);
+            closeModal('createProjectModal');
+            loadProjects();
+            
+            showNotification('Success', `Project "${name}" created successfully!`);
+            document.getElementById('createProjectForm').reset();
+        }
+
+        function openProject(project) {
+            console.log('Opening project:', project.name);
+            currentProject = project;
+            document.getElementById('projectsView').style.display = 'none';
+            document.getElementById('projectBoard').style.display = 'block';
+            document.getElementById('projectTitle').textContent = project.name;
+            
+            loadTasks();
+            updateTaskAssigneeOptions();
+            updateOnlineUsers();
+        }
+
+        function backToProjects() {
+            console.log('Back to projects');
+            currentProject = null;
+            document.getElementById('projectsView').style.display = 'block';
+            document.getElementById('projectBoard').style.display = 'none';
+        }
+
+        // Task Functions
+        function loadTasks() {
+            console.log('Loading tasks');
+            if (!currentProject) return;
+            
+            const projectTasks = db.tasks.filter(t => t.projectId === currentProject.id);
+            
+            const todoTasks = projectTasks.filter(t => t.status === 'todo');
+            const inProgressTasks = projectTasks.filter(t => t.status === 'in-progress');
+            const doneTasks = projectTasks.filter(t => t.status === 'done');
+            
+            renderTasks('todoTasks', todoTasks);
+            renderTasks('inProgressTasks', inProgressTasks);
+            renderTasks('doneTasks', doneTasks);
+            
+            document.getElementById('todoCount').textContent = todoTasks.length;
+            document.getElementById('inProgressCount').textContent = inProgressTasks.length;
+            document.getElementById('doneCount').textContent = doneTasks.length;
+        }
+
+        function renderTasks(containerId, tasks) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            if (tasks.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: rgba(255,255,255,0.7); font-style: italic;">
+                        No tasks yet
+                    </div>
+                `;
+                return;
+            }
+            
+            tasks.forEach(task => {
+                const taskCard = document.createElement('div');
+                taskCard.className = 'task-card';
+                taskCard.onclick = () => openTaskDetails(task);
+                
+                const assignee = db.users.find(u => u.id === task.assigneeId);
+                const priorityClass = `priority-${task.priority}`;
+                const priorityEmoji = {
+                    'high': '🔴',
+                    'medium': '🟡',
+                    'low': '🟢'
+                };
+                
+                taskCard.innerHTML = `
+                    <div class="task-title">${task.title}</div>
+                    <div class="task-description">${task.description || 'No description'}</div>
+                    <div class="task-meta">
+                        <div class="task-assignee">
+                            <div class="member-avatar" style="width: 28px; height: 28px; font-size: 0.8rem;">
+                                ${assignee ? assignee.username.charAt(0).toUpperCase() : '?'}
+                            </div>
+                            <span style="font-size: 0.85rem; color: #666;">
+                                ${assignee ? assignee.username : 'Unassigned'}
+                            </span>
+                        </div>
+                        <div class="task-priority ${priorityClass}">
+                            ${priorityEmoji[task.priority]} ${task.priority.toUpperCase()}
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(taskCard);
+            });
+        }
+
+        function openTaskModal(status = 'todo') {
+            console.log('Opening task modal for status:', status);
+            currentTask = null;
+            document.getElementById('taskModalTitle').textContent = '📋 Create New Task';
+            document.getElementById('taskForm').style.display = 'block';
+            document.getElementById('taskDetails').style.display = 'none';
+            document.getElementById('taskStatus').value = status;
+            openModal('taskModal');
+            document.getElementById('taskForm').reset();
+        }
+
+        function openTaskDetails(task) {
+            console.log('Opening task details for:', task.title);
+            currentTask = task;
+            document.getElementById('taskModalTitle').textContent = `📋 ${task.title}`;
+            document.getElementById('taskForm').style.display = 'none';
+            document.getElementById('taskDetails').style.display = 'block';
+            openModal('taskModal');
+            
+            loadTaskComments(task.id);
+        }
+
+        function updateTaskAssigneeOptions() {
+            console.log('Updating task assignee options');
+            const select = document.getElementById('taskAssignee');
+            select.innerHTML = '<option value="">👤 Select Assignee</option>';
+            
+            if (!currentProject) return;
+            
+            currentProject.members.forEach(memberId => {
+                const member = db.users.find(u => u.id === memberId);
+                if (member) {
+                    const option = document.createElement('option');
+                    option.value = member.id;
+                    option.textContent = `👤 ${member.username}`;
+                    select.appendChild(option);
+                }
+            });
+        }
+
+        function handleTaskSubmit(e) {
+            e.preventDefault();
+            console.log('Task form submitted');
+            
+            const title = document.getElementById('taskTitle').value.trim();
+            const description = document.getElementById('taskDesc').value.trim();
+            const priority = document.getElementById('taskPriority').value;
+            const assigneeId = parseInt(document.getElementById('taskAssignee').value) || null;
+            const status = document.getElementById('taskStatus').value;
+            
+            if (!title) {
+                showNotification('Error', 'Task title is required');
+                return;
+            }
+            
+            if (currentTask) {
+                console.log('Updating existing task');
+                const taskIndex = db.tasks.findIndex(t => t.id === currentTask.id);
+                if (taskIndex !== -1) {
+                    db.tasks[taskIndex] = {
+                        ...db.tasks[taskIndex],
+                        title,
+                        description,
+                        priority,
+                        assigneeId,
+                        status
+                    };
+                    showNotification('Success', 'Task updated successfully!');
+                }
+            } else {
+                console.log('Creating new task');
+                const newTask = {
+                    id: db.tasks.length + 1,
+                    projectId: currentProject.id,
+                    title,
+                    description,
+                    status,
+                    priority,
+                    assigneeId,
+                    createdBy: currentUser.id,
+                    createdAt: new Date().toISOString()
+                };
+                
+                db.tasks.push(newTask);
+                showNotification('Success', 'Task created successfully!');
+            }
+            
+            closeModal('taskModal');
+            loadTasks();
+        }
+
+        // Comments Functions
+        function loadTaskComments(taskId) {
+            console.log('Loading comments for task:', taskId);
+            const comments = db.comments.filter(c => c.taskId === taskId);
+            const commentsList = document.getElementById('commentsList');
+            commentsList.innerHTML = '';
+            
+            if (comments.length === 0) {
+                commentsList.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #999; font-style: italic;">
+                        💬 No comments yet. Be the first to comment!
+                    </div>
+                `;
+                return;
+            }
+            
+            comments.forEach(comment => {
+                const author = db.users.find(u => u.id === comment.authorId);
+                const commentDiv = document.createElement('div');
+                commentDiv.className = 'comment';
+                
+                const timeAgo = getTimeAgo(new Date(comment.createdAt));
+                
+                commentDiv.innerHTML = `
+                    <div class="comment-header">
+                        <span class="comment-author">👤 ${author ? author.username : 'Unknown'}</span>
+                        <span class="comment-time">${timeAgo}</span>
+                    </div>
+                    <div class="comment-content">${comment.content}</div>
+                `;
+                
+                commentsList.appendChild(commentDiv);
+            });
+        }
+
+        function addComment() {
+            console.log('Adding comment');
+            const content = document.getElementById('commentInput').value.trim();
+            if (!content || !currentTask) {
+                showNotification('Error', 'Please enter a comment');
+                return;
+            }
+            
+            const newComment = {
+                id: db.comments.length + 1,
+                taskId: currentTask.id,
+                authorId: currentUser.id,
+                content,
+                createdAt: new Date().toISOString()
+            };
+            
+            db.comments.push(newComment);
+            document.getElementById('commentInput').value = '';
+            loadTaskComments(currentTask.id);
+            
+            showNotification('Success', 'Comment added successfully!');
+        }
+
+        // Invite User Function
+        function handleInviteUser(e) {
+            e.preventDefault();
+            console.log('Inviting user');
+            
+            const email = document.getElementById('inviteEmail').value.trim();
+            
+            if (!email) {
+                showNotification('Error', 'Please enter an email address');
+                return;
+            }
+            
+            const user = db.users.find(u => u.email === email);
+            
+            if (!user) {
+                showNotification('Error', 'User not found. Try: alice@example.com or bob@example.com');
+                return;
+            }
+            
+            if (currentProject.members.includes(user.id)) {
+                showNotification('Error', 'User is already a member of this project');
+                return;
+            }
+            
+            currentProject.members.push(user.id);
+            closeModal('inviteModal');
+            updateTaskAssigneeOptions();
+            updateOnlineUsers();
+            
+            showNotification('Success', `${user.username} has been invited to the project!`);
+            document.getElementById('inviteForm').reset();
+        }
+
+        // Utility Functions
+        function openModal(modalId) {
+            console.log('Opening modal:', modalId);
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+        }
+
+        function closeModal(modalId) {
+            console.log('Closing modal:', modalId);
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function getTimeAgo(date) {
+            const now = new Date();
+            const diffInMs = now - date;
+            const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+            const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+            const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+            
+            if (diffInMinutes < 1) return 'Just now';
+            if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+            if (diffInHours < 24) return `${diffInHours}h ago`;
+            return `${diffInDays}d ago`;
+        }
+
+        function updateOnlineUsers() {
+            const onlineUsers = document.getElementById('onlineUsers');
+            
+            if (currentProject) {
+                const members = currentProject.members.slice(0, 4);
+                onlineUsers.innerHTML = members.map(memberId => {
+                    const member = db.users.find(u => u.id === memberId);
+                    return `
+                        <div class="member-avatar" style="width: 36px; height: 36px;">
+                            ${member ? member.username.charAt(0).toUpperCase() : '?'}
+                            <div class="online-indicator"></div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                onlineUsers.innerHTML = '';
+            }
+        }
+
+        // Event Listeners Setup
+        function setupEventListeners() {
+            console.log('Setting up event listeners');
+
+            // Authentication Events
+            const authForm = document.getElementById('authForm');
+            if (authForm) {
+                authForm.addEventListener('submit', handleAuth);
+            }
+
+            const demoLoginBtn = document.getElementById('demoLoginBtn');
+            if (demoLoginBtn) {
+                demoLoginBtn.addEventListener('click', handleDemoLogin);
+            }
+
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', handleLogout);
+            }
+
+            const authSwitchLink = document.getElementById('authSwitchLink');
+            if (authSwitchLink) {
+                authSwitchLink.addEventListener('click', toggleAuthMode);
+            }
+
+            // Project Events
+            const createProjectBtn = document.getElementById('createProjectBtn');
+            if (createProjectBtn) {
+                createProjectBtn.addEventListener('click', () => openModal('createProjectModal'));
+            }
+
+            const createProjectForm = document.getElementById('createProjectForm');
+            if (createProjectForm) {
+                createProjectForm.addEventListener('submit', handleCreateProject);
+            }
+
+            const backToProjects = document.getElementById('backToProjects');
+            if (backToProjects) {
+                backToProjects.addEventListener('click', backToProjects);
+            }
+
+            const inviteUserBtn = document.getElementById('inviteUserBtn');
+            if (inviteUserBtn) {
+                inviteUserBtn.addEventListener('click', () => openModal('inviteModal'));
+            }
+
+            const inviteForm = document.getElementById('inviteForm');
+            if (inviteForm) {
+                inviteForm.addEventListener('submit', handleInviteUser);
+            }
+
+            // Task Events
+            const taskForm = document.getElementById('taskForm');
+            if (taskForm) {
+                taskForm.addEventListener('submit', handleTaskSubmit);
+            }
+
+            // Modal close events
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    const openModal = document.querySelector('.modal[style*="flex"]');
+                    if (openModal) {
+                        openModal.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // Initialize Application
+        function initApp() {
+            console.log('🌟 Initializing ProjectFlow...');
+            setupEventListeners();
+            console.log('✅ ProjectFlow initialized successfully!');
+        }
+
+        // Start the application when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
